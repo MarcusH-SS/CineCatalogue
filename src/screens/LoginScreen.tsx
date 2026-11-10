@@ -71,9 +71,9 @@ export default function LoginScreen({
     <Screen>
       <View style={styles.container}>
         <View style={styles.logoContainer}>
-          <Text style={styles.logo}>
-            CINE<Text style={styles.gold}>+</Text>
-          </Text>
+        <Text style={styles.logo}>
+  Cine<Text style={styles.gold}>Catalogue</Text>
+</Text>
           <Text style={styles.subtitle}>FILMES E TRADUÇÕES</Text>
         </View>
 
@@ -164,9 +164,9 @@ const styles = StyleSheet.create({
   },
   logo: {
     color: colors.text,
-    fontSize: 38,
+    fontSize: 30,
     fontWeight: '900',
-    letterSpacing: 3,
+    letterSpacing: 1,
   },
   gold: {
     color: colors.accent,
