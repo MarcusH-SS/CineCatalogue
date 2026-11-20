@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
@@ -19,12 +18,21 @@ import { useMovieSearch } from '../hooks/useMovieSearch';
 import { useTranslation } from '../hooks/useTranslation';
 import { colors, spacing } from '../theme';
 import { logoutUser } from '../services/auth';
+import { useFavorites } from '../hooks/useFavorites';
+import { auth } from '../services/firebase';
+import { Ionicons } from '@expo/vector-icons';
 
-export default function HomeScreen() {
+interface HomeScreenProps {
+  onOpenFavorites: () => void;
+}
+
+export default function HomeScreen({ onOpenFavorites }: HomeScreenProps) {
   const [loggingOut, setLoggingOut] = useState(false);
 
   const search = useMovieSearch();
   const translation = useTranslation(search.selected);
+  const userId = auth.currentUser?.uid;
+  const { toggleFavorite, isFavorite } = useFavorites(userId);
 
   const isIdle =
     !search.loading &&
@@ -35,7 +43,7 @@ export default function HomeScreen() {
     try {
       setLoggingOut(true);
       await logoutUser();
-    } catch (error) {
+    } catch {
       Alert.alert('Erro', 'Não foi possível sair da conta.');
       setLoggingOut(false);
     }
@@ -46,15 +54,25 @@ export default function HomeScreen() {
       <View style={styles.topBar}>
         <Text style={styles.heading}>Sinopse em outro idioma</Text>
 
-        <Pressable
-          style={styles.logoutButton}
-          onPress={handleLogout}
-          disabled={loggingOut}
-        >
-          <Text style={styles.logoutText}>
-            {loggingOut ? 'Saindo...' : 'Sair'}
-          </Text>
-        </Pressable>
+        <View style={styles.topActions}>
+          <Pressable
+            style={styles.favoritesButton}
+            onPress={onOpenFavorites}
+          >
+            <Ionicons name="heart" size={16} color="#ff4757" />
+            <Text style={styles.favoritesText}>Favoritos</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.logoutButton}
+            onPress={handleLogout}
+            disabled={loggingOut}
+          >
+            <Text style={styles.logoutText}>
+              {loggingOut ? 'Saindo...' : 'Sair'}
+            </Text>
+          </Pressable>
+        </View>
       </View>
 
       <Text style={styles.subheading}>
@@ -99,11 +117,39 @@ export default function HomeScreen() {
           />
 
           {search.selected && (
-            <MovieDetail
-              movie={search.selected}
-              lang={translation.lang}
-              translation={translation}
-            />
+            <View>
+              <MovieDetail
+                movie={search.selected}
+                lang={translation.lang}
+                translation={translation}
+              />
+
+              <Pressable
+                onPress={() =>
+                  userId && search.selected
+                    ? toggleFavorite(search.selected)
+                    : Alert.alert('Atenção', 'Faça login para favoritar!')
+                }
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: '#222',
+                  padding: 12,
+                  borderRadius: 8,
+                  justifyContent: 'center',
+                  marginTop: 10,
+                }}
+              >
+                <Ionicons
+                  name={isFavorite(search.selected.id) ? 'heart' : 'heart-outline'}
+                  size={24}
+                  color={isFavorite(search.selected.id) ? '#ff4757' : '#fff'}
+                />
+                <Text style={{ color: '#fff', marginLeft: 8, fontWeight: '700' }}>
+                  {isFavorite(search.selected.id) ? 'Favorito' : 'Favoritar'}
+                </Text>
+              </Pressable>
+            </View>
           )}
         </>
       )}
@@ -124,12 +170,31 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     flex: 1,
   },
+  topActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: spacing.sm,
+  },
+  favoritesButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#222',
+    paddingVertical: 9,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginRight: spacing.xs,
+  },
+  favoritesText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 14,
+    marginLeft: 5,
+  },
   logoutButton: {
     backgroundColor: colors.accent,
     paddingVertical: 9,
     paddingHorizontal: 14,
     borderRadius: 8,
-    marginLeft: spacing.sm,
   },
   logoutText: {
     color: '#FFFFFF',

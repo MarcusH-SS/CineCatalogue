@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -12,6 +11,7 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import HomeScreen from './src/screens/HomeScreen';
+import { FavoritesScreen } from './src/screens/FavoritesScreen';
 
 import { auth } from './src/services/firebase';
 import { loginUser, registerUser } from './src/services/auth';
@@ -23,6 +23,9 @@ export default function App() {
     'login' | 'register'
   >('login');
 
+  // Novo estado para alternar entre Catálogo (Home) e Favoritos
+  const [loggedScreen, setLoggedScreen] = useState<'home' | 'favorites'>('home');
+
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -30,6 +33,9 @@ export default function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      if (!currentUser) {
+        setLoggedScreen('home'); // Garante que ao deslogar e logar de novo, comece na Home
+      }
       setLoading(false);
     });
 
@@ -62,9 +68,19 @@ export default function App() {
     );
   }
 
-  // Se existir usuário autenticado, abre a tela principal
+  // Se existir usuário autenticado, alterna entre Favoritos e Home
   if (user) {
-    return <HomeScreen />;
+    if (loggedScreen === 'favorites') {
+      return (
+        <FavoritesScreen
+          onBackToHome={() => setLoggedScreen('home')}
+        />
+      );
+    }
+
+    return (
+      <HomeScreen onOpenFavorites={() => setLoggedScreen('favorites')} />
+    );
   }
 
   // Tela de cadastro

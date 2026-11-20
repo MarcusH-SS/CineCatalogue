@@ -1,22 +1,22 @@
-
-import { initializeApp, getApp, getApps } from 'firebase/app';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+  apiKey: "AIzaSyA-BDSdqrNrL3nWTvCdMHQzoooRvuJuokU",
+  authDomain: "cinecatalogue.firebaseapp.com",
+  projectId: "cinecatalogue",
+  storageBucket: "cinecatalogue.firebasestorage.app",
+  messagingSenderId: "909764649591",
+  appId: "1:909764649591:web:b5cda30e8161a95280dc72",
+  measurementId: "G-C5DC9W63CS"
 };
 
-const app = getApps().length > 0
-  ? getApp()
-  : initializeApp(firebaseConfig);
+// Inicializa o Firebase (evita duplicar instâncias)
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 const auth = getAuth(app);
+
 const db = getFirestore(app);
 
 export { app, auth, db };

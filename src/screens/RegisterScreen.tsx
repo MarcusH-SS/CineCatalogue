@@ -66,6 +66,7 @@ export default function RegisterScreen({
       );
     } catch (error) {
       const code = (error as { code?: string }).code;
+      console.error('Erro ao criar conta no Firebase:', error);
   
       if (code === 'auth/email-already-in-use') {
         setError('Este e-mail já possui uma conta cadastrada.');
@@ -73,10 +74,34 @@ export default function RegisterScreen({
         setError('Digite um e-mail válido.');
       } else if (code === 'auth/weak-password') {
         setError('A senha é muito fraca. Use pelo menos 6 caracteres.');
+      } else if (code === 'auth/password-does-not-meet-requirements') {
+        setError('A senha não atende aos requisitos definidos no Firebase.');
+      } else if (
+        code === 'auth/operation-not-allowed' ||
+        code === 'auth/configuration-not-found'
+      ) {
+        setError(
+          'O cadastro por e-mail e senha está desativado no Firebase Authentication.'
+        );
+      } else if (
+        code === 'auth/invalid-api-key' ||
+        code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.'
+      ) {
+        setError(
+          'A chave da API do Firebase é inválida ou restrita. Confira a apiKey da configuração do app Web no Firebase Console.'
+        );
+      } else if (code === 'auth/unauthorized-domain') {
+        setError(
+          'Este domínio não está autorizado no Firebase Authentication.'
+        );
       } else if (code === 'auth/network-request-failed') {
         setError('Falha na conexão. Verifique sua internet.');
       } else {
-        setError('Não foi possível criar a conta. Tente novamente.');
+        setError(
+          code
+            ? `Não foi possível criar a conta. Código do Firebase: ${code}.`
+            : 'Não foi possível criar a conta. Verifique o console para mais detalhes.'
+        );
       }
     } finally {
       setIsLoading(false);

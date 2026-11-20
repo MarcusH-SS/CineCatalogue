@@ -16,6 +16,7 @@ export function useTranslation(movie: Movie | null) {
   const cache = useRef<Record<string, string>>({});
 
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (!movie) {
       setState(IDLE);
       return;
@@ -35,6 +36,7 @@ export function useTranslation(movie: Movie | null) {
     // `cancelled` descarta respostas atrasadas se o usuário trocar de filme/idioma
     let cancelled = false;
     setState({ text: null, notice: null, loading: true });
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     translateOverview(movie.overview, lang.code)
       .then((text) => {
@@ -47,7 +49,9 @@ export function useTranslation(movie: Movie | null) {
         setState({ text: null, notice, loading: false });
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [movie, lang]);
 
   return { lang, setLang, ...state };
