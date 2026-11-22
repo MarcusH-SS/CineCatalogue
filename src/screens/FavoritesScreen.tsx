@@ -9,17 +9,16 @@ import {
   StyleSheet,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { auth } from '../services/firebase';
 import { useFavorites } from '../hooks/useFavorites';
 import { Movie } from '../types/movie';
 
 interface FavoritesScreenProps {
+  userId: string | null;
   onBackToHome: () => void;
 }
 
-export function FavoritesScreen({ onBackToHome }: FavoritesScreenProps) {
-  const userId = auth.currentUser?.uid;
-  const { favorites, loading, toggleFavorite } = useFavorites(userId);
+export function FavoritesScreen({ userId, onBackToHome }: FavoritesScreenProps) {
+  const { favorites, loading, toggleFavorite } = useFavorites(userId ?? undefined);
 
   function renderItem({ item }: { item: Movie }) {
     const rawPoster = (item as any).posterPath || (item as any).poster_path;

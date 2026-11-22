@@ -17,22 +17,25 @@ import { SearchBar } from '../components/SearchBar';
 import { useMovieSearch } from '../hooks/useMovieSearch';
 import { useTranslation } from '../hooks/useTranslation';
 import { colors, spacing } from '../theme';
-import { logoutUser } from '../services/auth';
 import { useFavorites } from '../hooks/useFavorites';
-import { auth } from '../services/firebase';
 import { Ionicons } from '@expo/vector-icons';
 
 interface HomeScreenProps {
   onOpenFavorites: () => void;
+  onLogout: () => Promise<void> | void;
+  userId?: string | null;
 }
 
-export default function HomeScreen({ onOpenFavorites }: HomeScreenProps) {
+export default function HomeScreen({
+  onOpenFavorites,
+  onLogout,
+  userId,
+}: HomeScreenProps) {
   const [loggingOut, setLoggingOut] = useState(false);
 
   const search = useMovieSearch();
   const translation = useTranslation(search.selected);
-  const userId = auth.currentUser?.uid;
-  const { toggleFavorite, isFavorite } = useFavorites(userId);
+  const { toggleFavorite, isFavorite } = useFavorites(userId ?? undefined);
 
   const isIdle =
     !search.loading &&
@@ -42,9 +45,10 @@ export default function HomeScreen({ onOpenFavorites }: HomeScreenProps) {
   async function handleLogout() {
     try {
       setLoggingOut(true);
-      await logoutUser();
+      await onLogout();
     } catch {
       Alert.alert('Erro', 'Não foi possível sair da conta.');
+    } finally {
       setLoggingOut(false);
     }
   }
